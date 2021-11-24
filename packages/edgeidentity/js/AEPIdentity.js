@@ -16,8 +16,8 @@ governing permissions and limitations under the License.
 'use strict';
 
 const RCTAEPEdgeIdentity = require('react-native').NativeModules.AEPEdgeIdentity;
-import type {AEPIdentityMap} from './models/AEPIdentityMap';
-import type {AEPIdentityItem} from './models/AEPIdentityItem';
+import AEPIdentityMap from './models/AEPIdentityMap';
+import AEPIdentityItem from './models/AEPIdentityItem';
 
 module.exports = {
   /**
@@ -48,6 +48,19 @@ module.exports = {
    */
 
    getIdentities(): Promise<AEPIdentityMap> {
+    let identityObject = RCTAEPEdgeIdentity.getIdentities();
+    console.log(" get" + JSON.stringify(RCTAEPEdgeIdentity.getIdentities()));
+    console.log(" test" + typeof identityObject);
+    console.log(" get" + JSON.stringify(identityObject));
+    let identityMap = new AEPIdentityMap();
+    console.log(identityMap);
+
+    console.log("toIdentityMap" + toIdentityMap(identityObject));
+
+    //return toIdentityMap(identityObject);
+   
+    //return identityObject;
+
     return RCTAEPEdgeIdentity.getIdentities();
   },
 
@@ -60,6 +73,7 @@ module.exports = {
    * 
    */
    updateIdentities(identityMap: AEPIdentityMap) {
+
     RCTAEPEdgeIdentity.updateIdentities(identityMap);
   },
 
@@ -75,3 +89,15 @@ module.exports = {
     RCTAEPEdgeIdentity.removeIdentity(item, namespace);
   },
 };
+  
+function toIdentityMap(idObj: Object) {
+  var idMap = new AEPIdentityMap();
+
+  for (const [key, value] of Object.entries(idObj)) {
+    console.log('${key}: '+ key);
+    console.log('${value}: '+ value);
+    idMap[key] = [idObj.key];
+     console.log('key: '+ idMap[key]);
+  }
+   return idMap;
+}
