@@ -47,21 +47,20 @@ module.exports = {
    * @return promise method which will be invoked once the identifiers are available or rejected if an unexpected error occurred or the request timed out.
    */
 
-   getIdentities(): Promise<AEPIdentityMap> {
-    let identityObject = RCTAEPEdgeIdentity.getIdentities();
-    console.log(" get" + JSON.stringify(RCTAEPEdgeIdentity.getIdentities()));
-    console.log(" test" + typeof identityObject);
-    console.log(" get" + JSON.stringify(identityObject));
-    let identityMap = new AEPIdentityMap();
-    console.log(identityMap);
+  getIdentities(): Promise<AEPIdentityMap> {
+    const getIdentitiesPromise = new Promise<AEPIdentityMap>((resolve, reject) => {
+       
+        RCTAEPEdgeIdentity.getIdentities()
+        .then(identities => {
+          let identityMap = toIdentityMap(identities) 
+          resolve(identityMap);
+        })
+        .catch((error) => {
+          reject(error);
+        });      
+    });
 
-    console.log("toIdentityMap" + toIdentityMap(identityObject));
-
-    //return toIdentityMap(identityObject);
-   
-    //return identityObject;
-
-    return RCTAEPEdgeIdentity.getIdentities();
+    return getIdentitiesPromise;
   },
 
   /**
@@ -94,10 +93,8 @@ function toIdentityMap(idObj: Object) {
   var idMap = new AEPIdentityMap();
 
   for (const [key, value] of Object.entries(idObj)) {
-    console.log('${key}: '+ key);
-    console.log('${value}: '+ value);
-    idMap[key] = [idObj.key];
-     console.log('key: '+ idMap[key]);
+    idMap.items[key] = value;   
   }
+   
    return idMap;
 }
