@@ -155,3 +155,21 @@ out/
 
 # temporary allow messaging compiled code
 !packages/messaging/dist/
+
+# Detox E2E Testing
+# Test artifacts (screenshots, logs, videos)
+**/e2e/artifacts/
+**/e2e/.artifacts/
+
+# Expo generated native folders (from expo prebuild)
+# These are generated and should not be committed in Expo projects
+apps/AEPSampleAppNewArchEnabled/ios/
+apps/AEPSampleAppNewArchEnabled/android/
+
+# Detox build outputs
+*.app.dSYM.zip
+*.app.zip
+
+# Test results
+junit.xml
+test-results.xml

@@ -23,3 +23,7 @@ expo-env.d.ts
 !/.idea/file_to_keep.xml# Exclude native builds
 android/
 ios/
+
+# Detox test artifacts
+artifacts/
+e2e/artifacts/
