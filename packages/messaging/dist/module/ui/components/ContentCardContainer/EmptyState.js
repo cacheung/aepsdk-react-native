@@ -1,22 +1,49 @@
 "use strict";
 
-import { Image, Text } from "react-native";
-import CenteredView from "../CenteredView/CenteredView.js";
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+import { Image, StyleSheet, Text } from "react-native";
+import useAspectRatio from "../../hooks/useAspectRatio.js";
+import { useTheme } from "../../theme/index.js";
+import FullScreenCenterView from "../FullScreenCenterView/FullScreenCenterView.js";
 const EmptyState = ({
   image,
-  text
+  text,
+  styleOverrides,
+  ContainerProps,
+  ImageProps,
+  TextProps
 }) => {
-  return /*#__PURE__*/React.createElement(CenteredView, null, /*#__PURE__*/React.createElement(Image, {
+  const {
+    colors
+  } = useTheme();
+  const ratio = useAspectRatio(image);
+  return /*#__PURE__*/React.createElement(FullScreenCenterView, _extends({
+    style: [styles.container, styleOverrides?.container]
+  }, ContainerProps), /*#__PURE__*/React.createElement(Image, _extends({
     source: {
       uri: image
     },
-    style: {
-      width: 120,
-      height: 120,
-      padding: 10
-    },
+    style: [styles.image, {
+      aspectRatio: ratio
+    }, styleOverrides?.image],
     resizeMode: "contain"
-  }), /*#__PURE__*/React.createElement(Text, null, text));
+  }, ImageProps)), /*#__PURE__*/React.createElement(Text, _extends({
+    style: [styles.text, {
+      color: colors.textPrimary
+    }, styleOverrides?.text]
+  }, TextProps), text));
 };
 export default EmptyState;
+const styles = StyleSheet.create({
+  image: {
+    width: '50%'
+  },
+  text: {
+    fontWeight: '600',
+    fontSize: 16
+  },
+  container: {
+    gap: 16
+  }
+});
 //# sourceMappingURL=EmptyState.js.map
