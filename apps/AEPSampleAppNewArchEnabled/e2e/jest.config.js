@@ -9,6 +9,7 @@ module.exports = {
   testEnvironment: 'detox/runners/jest/testEnvironment',
   verbose: true,
   setupFilesAfterEnv: ['<rootDir>/e2e/setup.ts'],
+  watchman: false,
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',
