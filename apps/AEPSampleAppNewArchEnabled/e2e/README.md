@@ -94,6 +94,23 @@ e2e/
 
 ## Running Tests
 
+> **⚠️ Important**: Make sure the Metro bundler is running before executing tests!
+> 
+> **Terminal 1** - Start Metro bundler (keep running):
+> ```bash
+> npm start
+> ```
+> 
+> **Terminal 2** - Run tests:
+> ```bash
+> npx detox test -c ios.sim.debug e2e/contentCards.sample.test.ts
+> ```
+
+> **Note**: If you get `zsh: command not found: detox`, you have three options:
+> 1. **Use npm scripts** (recommended) - The project includes npm scripts that use the local Detox installation
+> 2. **Use npx** - Prefix commands with `npx` (e.g., `npx detox test ...`)
+> 3. **Install globally** - Run `npm install -g detox-cli`
+
 ### All tests
 ```bash
 # Build and test iOS
@@ -104,6 +121,23 @@ npm run e2e:android
 ```
 
 ### Individual test files
+
+Using npm scripts (recommended):
+```bash
+npm run detox:test:ios
+npm run detox:test:android
+```
+
+Using npx (no global install needed):
+```bash
+# Mock data tests
+npx detox test -c ios.sim.debug e2e/contentCards.mock.test.ts
+
+# API integration tests
+npx detox test -c android.emu.debug e2e/contentCards.api.test.ts
+```
+
+Using global detox (requires `npm install -g detox-cli`):
 ```bash
 # Mock data tests
 detox test -c ios.sim.debug e2e/contentCards.mock.test.ts
@@ -114,11 +148,11 @@ detox test -c android.emu.debug e2e/contentCards.api.test.ts
 
 ### Specific test suites
 ```bash
-# Run only Navigation tests
-detox test -c ios.sim.debug --testNamePattern="Navigation"
+# Run only Navigation tests (using npx)
+npx detox test -c ios.sim.debug --testNamePattern="Navigation"
 
-# Run only Theme Switching tests
-detox test -c ios.sim.debug --testNamePattern="Theme Switching"
+# Run only Theme Switching tests (using npx)
+npx detox test -c ios.sim.debug --testNamePattern="Theme Switching"
 ```
 
 ### Build only
@@ -220,6 +254,17 @@ Tests use real Adobe Experience Platform API with surfaces:
 
 ### Common Issues
 
+**"command not found: detox"**
+- Detox CLI is not installed globally
+- Use `npx detox` instead (e.g., `npx detox test -c ios.sim.debug`)
+- Or use npm scripts: `npm run detox:test:ios`
+- Or install globally: `npm install -g detox-cli`
+
+**"No script URL provided. Make sure the packager is running..."**
+- Metro bundler is not running
+- Open a separate terminal and run `npm start` before running tests
+- Keep Metro running while tests execute
+
 **"Cannot find element"**
 - Element may not be visible yet - increase timeout
 - Check testID matches exactly
@@ -244,7 +289,7 @@ Tests use real Adobe Experience Platform API with surfaces:
 
 Run with verbose logging:
 ```bash
-detox test -c ios.sim.debug --loglevel trace
+npx detox test -c ios.sim.debug --loglevel trace
 ```
 
 ### View Test Artifacts

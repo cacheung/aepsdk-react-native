@@ -81,13 +81,14 @@ const StyledText = ({ text }: { text: string }) => {
   return <Text style={[styles.infoText, styles.textCenter]}>{text}</Text>;
 };
 
-const Switcher = ({ title, options, selected, onChange, colors, colorScheme }: {
+const Switcher = ({ title, options, selected, onChange, colors, colorScheme, testIdPrefix }: {
   title: string;
   options: { label: string; value: string }[];
   selected: string;
   onChange: (value: string) => void;
   colors: any;
   colorScheme: ColorSchemeName;
+  testIdPrefix?: string;
 }) => (
   <View style={[styles.section, styles.panel, { backgroundColor: colors.background, borderColor: colors.panelBorder }]}>
     <Text style={[styles.titleText, { color: colors.text }]}>{title}</Text>
@@ -95,6 +96,7 @@ const Switcher = ({ title, options, selected, onChange, colors, colorScheme }: {
       {options.map(({ label, value }) => (
         <TouchableOpacity
           key={label}
+          testID={testIdPrefix ? `${testIdPrefix}-${value.toLowerCase().replace(/\s+/g, '')}` : undefined}
           style={[
             styles.themeOption,
             selected === value ? [styles.themeOptionSelected, { backgroundColor: colors.tint }] : styles.themeOptionUnselected,
@@ -156,6 +158,7 @@ const Header = ({
       <View style={[styles.section, styles.panel, { backgroundColor: colors.background, borderColor: colors.panelBorder }]}>
         <Text style={[styles.titleText, { color: colors.text }]}>Select View Type</Text>
         <TouchableOpacity
+          testID="view-picker-button"
           style={[styles.buttonNeutral, { borderColor: colors.panelBorder, backgroundColor: colors.inputBg }]}
           onPress={() => setShowPicker(true)}
         >
@@ -171,6 +174,7 @@ const Header = ({
         onChange={(label) => handleThemeChange(label, THEME_OPTIONS.find(o => o.label === label)!.value)}
         colors={colors}
         colorScheme={colorScheme}
+        testIdPrefix="theme"
       />
 
       {selectedView == 'Templates' ? (
@@ -182,6 +186,7 @@ const Header = ({
           onChange={(val) => onTemplateChange(val as TemplateOption)}
           colors={colors}
           colorScheme={colorScheme}
+          testIdPrefix="template"
         />)
 
         /* Track Action Input */
@@ -190,6 +195,7 @@ const Header = ({
             <Text style={[styles.titleText, { color: colors.text }]}>Track Action</Text>
             <View style={styles.rowCenter}>
               <TextInput
+                testID="track-action-input"
                 style={[styles.trackInput, { borderColor: colors.inputBorder, color: colors.text }]}
                 value={trackInput}
                 onChangeText={setTrackInput}
@@ -198,6 +204,7 @@ const Header = ({
                 autoCapitalize="none"
               />
               <TouchableOpacity
+                testID="track-action-button"
                 style={[styles.buttonPrimary, { backgroundColor: colors.tint }]}
                 onPress={handleTrackAction}
                 disabled={!trackInput.trim() || isLoading}
@@ -211,12 +218,13 @@ const Header = ({
         )}
 
       {/* View Picker Modal */}
-      <Modal visible={showPicker} transparent animationType="fade">
+      <Modal visible={showPicker} transparent animationType="fade" testID="view-picker-modal">
         <TouchableOpacity style={styles.modalOverlay} onPress={() => setShowPicker(false)}>
           <View style={[styles.modalCard, { backgroundColor: colors.background }]}>
             {VIEW_OPTIONS.map((option) => (
               <TouchableOpacity
                 key={option}
+                testID={`view-option-${option.toLowerCase().replace(/\s+/g, '-')}`}
                 style={styles.modalOption}
                 onPress={() => {
                   setSelectedView(option);
@@ -226,7 +234,7 @@ const Header = ({
                 <Text style={{ color: colors.text }}>{option}</Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={styles.modalCancel} onPress={() => setShowPicker(false)}>
+            <TouchableOpacity testID="modal-cancel-button" style={styles.modalCancel} onPress={() => setShowPicker(false)}>
               <Text style={styles.modalCancelText}>Cancel</Text>
             </TouchableOpacity>
           </View>
@@ -272,12 +280,14 @@ const ContentCardsView = () => {
           selectedTemplate={selectedTemplate}
           onTemplateChange={setSelectedTemplate}
         />
-        <ContentCardContainer
-          surface={surface}
-          settings={settings}
-          isLoading={isLoadingContainer}
-          error={error}
-        />
+        <View testID="content-card-container-remote">
+          <ContentCardContainer
+            surface={surface}
+            settings={settings}
+            isLoading={isLoadingContainer}
+            error={error}
+          />
+        </View>
       </>
     );
   }
@@ -291,6 +301,7 @@ const ContentCardsView = () => {
       getMocks(selectedView)
     ] as { surfaceSettings: ContainerSettings; containerStyle?: any; CardProps?: any };
 
+    const viewTestId = `content-card-container-${selectedView.toLowerCase().replace(/\s+/g, '-')}`;
     return (
       <>
         <MemoHeader
@@ -301,20 +312,22 @@ const ContentCardsView = () => {
           selectedTemplate={selectedTemplate}
           onTemplateChange={setSelectedTemplate}
         />
-        <ContentCardContainer
-          surface={surface}
-          settings={settings.surfaceSettings}
-          contentContainerStyle={[
-            settings.containerStyle,
-            selectedView === 'Container with Styling' && colorScheme === 'dark' && {
-              backgroundColor: '#881337',
-              borderColor: '#F472B6',
-            },
-          ]}
-          CardProps={settings?.CardProps}
-          isLoading={isLoadingContainer}
-          error={error}
-        />
+        <View testID={viewTestId}>
+          <ContentCardContainer
+            surface={surface}
+            settings={settings.surfaceSettings}
+            contentContainerStyle={[
+              settings.containerStyle,
+              selectedView === 'Container with Styling' && colorScheme === 'dark' && {
+                backgroundColor: '#881337',
+                borderColor: '#F472B6',
+              },
+            ]}
+            CardProps={settings?.CardProps}
+            isLoading={isLoadingContainer}
+            error={error}
+          />
+        </View>
       </>
     );
   }
@@ -345,6 +358,7 @@ const ContentCardsView = () => {
 
   return (
     <FlatList
+      testID="content-cards-template-list"
       data={items || []}
       keyExtractor={(item: any) => item.key}
       renderItem={({ item }: any) =>

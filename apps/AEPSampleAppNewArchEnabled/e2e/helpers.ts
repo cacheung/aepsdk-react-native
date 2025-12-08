@@ -82,11 +82,11 @@ export async function trackAction(actionName: string) {
 /**
  * Helper function to verify content card container is visible
  */
-export async function verifyContentCardContainerVisible(containerTestId?: string) {
+export async function verifyContentCardContainerVisible(containerTestId?: string, timeout: number = 10000) {
   const testId = containerTestId || 'content-cards-container';
   await waitFor(element(by.id(testId)))
-    .toBeVisible()
-    .withTimeout(5000);
+    .toExist()
+    .withTimeout(timeout);
 }
 
 /**

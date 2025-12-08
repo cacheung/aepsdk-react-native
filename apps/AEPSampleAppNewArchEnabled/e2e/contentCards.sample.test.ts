@@ -117,46 +117,259 @@ describe('Content Cards - Sample Tests', () => {
   });
 
   /**
-   * PATTERN 10: Complex Workflow Test
-   * Tests that combine multiple patterns into a realistic user flow
+   * CUSTOM TEST: Large Image Cards with Dismiss Functionality
+   * 
+   * Test Flow:
+   * 1. Track large_image1, large_image2, large_image3 to load 3 large image cards
+   * 2. Verify large_image1 card is displayed (title: "Dreams in the Sky")
+   * 3. Click the dismiss button (×) on large_image1
+   * 4. Verify large_image1 is removed ("Dreams in the Sky" no longer visible)
+   * 5. Verify large_image2 is still visible ("Shade by the Sea")
    */
-  describe('Complex Workflow Tests', () => {
-    xit('should complete a full user workflow', async () => {
-      // Step 1: User changes theme preference
-      await switchTheme('dark');
-      await takeScreenshot('workflow-step1-theme-dark');
+  describe('Custom - Large Image Cards with Dismiss', () => {
+    it('should dismiss large_image1 card when clicking the dismiss button', async () => {
+      // We're already on Remote view by default
+      await verifyContentCardContainerVisible('content-card-container-remote');
       
-      // Step 2: User explores different view types
-      await selectViewType('inbox');
-      await verifyContentCardContainerVisible('content-card-container-inbox');
-      await takeScreenshot('workflow-step2-inbox-view');
+      // Wait for initial content to load
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      console.log('Step 0: Starting test - tracking large image cards');
       
-      // Step 3: User switches to carousel
-      await selectViewType('carousel');
-      await verifyContentCardContainerVisible('content-card-container-carousel');
-      await takeScreenshot('workflow-step3-carousel-view');
+      // STEP 1: Track large_image1
+      console.log('Step 1: Tracking action - large_image1');
+      await element(by.id('track-action-input')).replaceText('large_image1');
+      await element(by.id('track-action-button')).tap();
+      await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Step 4: User goes to templates
-      await selectViewType('templates');
-      await waitFor(element(by.id('content-cards-template-list')))
-        .toBeVisible()
+      // STEP 2: Track large_image2
+      console.log('Step 2: Tracking action - large_image2');
+      await element(by.id('track-action-input')).replaceText('large_image2');
+      await element(by.id('track-action-button')).tap();
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // STEP 3: Track large_image3
+      console.log('Step 3: Tracking action - large_image3');
+      await element(by.id('track-action-input')).replaceText('large_image3');
+      await element(by.id('track-action-button')).tap();
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
+      // Take screenshot before dismiss
+      await takeScreenshot('large-images-before-dismiss');
+      console.log('Step 3 complete: 3 large image cards should be visible');
+      
+      // Extra wait for content to fully load
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // STEP 4: Verify large_image1 exists and dismiss it
+      console.log('Step 4: Verifying large_image1 card exists');
+      
+      // Verify large_image1 card is visible by checking its title text
+      await waitFor(element(by.text('Dreams in the Sky')))
+        .toExist()
+        .withTimeout(10000);
+      console.log('✓ Verified: large_image1 card "Dreams in the Sky" exists');
+      
+      // Also verify large_image2 exists (may need scrolling on some devices)
+      try {
+        await waitFor(element(by.text('Shade by the Sea')))
+          .toExist()
+          .withTimeout(5000);
+        console.log('✓ Verified: large_image2 card "Shade by the Sea" exists');
+      } catch (e) {
+        // Try scrolling to find it
+        console.log('⚠ large_image2 not immediately visible, trying to scroll...');
+        await waitFor(element(by.text('Shade by the Sea')))
+          .toBeVisible()
+          .whileElement(by.id('content-card-container-remote'))
+          .scroll(200, 'down');
+        console.log('✓ Found large_image2 "Shade by the Sea" after scrolling');
+        
+        // Scroll back up
+        await element(by.id('content-card-container-remote')).scroll(200, 'up');
+      }
+      
+      // STEP 5: Click the dismiss button on large_image1
+      // The dismiss button renders as '×' (multiplication sign) and is the first one (index 0)
+      console.log('Step 5: Clicking dismiss button on large_image1');
+      
+      // The dismiss button text is '×' (multiplication sign, Unicode \u00D7)
+      const dismissButtons = element(by.text('×'));
+      await dismissButtons.atIndex(0).tap();
+      
+      // Wait for dismiss animation
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Take screenshot after dismiss
+      await takeScreenshot('large-images-after-dismiss');
+      
+      // STEP 6: Verify the card is dismissed
+      console.log('Step 6: Verifying large_image1 was dismissed');
+      
+      // Verify large_image1 is no longer visible
+      await waitFor(element(by.text('Dreams in the Sky')))
+        .not.toExist()
         .withTimeout(5000);
-      await takeScreenshot('workflow-step4-templates-view');
+      console.log('✓ Verified: large_image1 "Dreams in the Sky" is no longer visible');
       
-      // Step 5: User tries different templates
-      await switchTemplate('largeimage');
-      await takeScreenshot('workflow-step5-large-image');
+      // Verify large_image2 is still visible
+      await detoxExpect(element(by.text('Shade by the Sea'))).toExist();
+      console.log('✓ Verified: large_image2 "Shade by the Sea" is still visible');
       
-      // Step 6: User changes theme again
-      await switchTheme('light');
-      await takeScreenshot('workflow-step6-theme-light');
+      // The container should still be visible
+      await verifyContentCardContainerVisible('content-card-container-remote');
       
-      // Verify final state
-      await detoxExpect(element(by.id('theme-light'))).toBeVisible();
-      await waitFor(element(by.id('content-cards-template-list')))
-        .toBeVisible()
-        .withTimeout(5000);
+      console.log('✅ Test completed: Large image card dismissed successfully!');
+      console.log('   Summary:');
+      console.log('   - Step 1-3: Tracked large_image1, large_image2, large_image3');
+      console.log('   - Step 4: Verified both cards exist');
+      console.log('   - Step 5: Clicked dismiss button on large_image1');
+      console.log('   - Step 6: Verified large_image1 removed, large_image2 still visible');
     });
   });
+
+  /**
+   * CUSTOM TEST: Image Only Cards Loading
+   * 
+   * Image-only cards have no text content, so we validate by:
+   * - Verifying container has content after loading
+   * - Taking screenshots to capture visual state
+   * - Checking dismiss buttons if available
+   * 
+   * Test Flow:
+   * 1. Track image_only3, image_only4, image_only1 to load 3 image-only cards
+   * 2. Verify container is visible with content
+   * 3. Take screenshot to capture the loaded cards
+   * 4. If dismiss buttons exist, test dismiss functionality
+   */
+  describe('Custom - Image Only Cards', () => {
+    it('should load image-only cards and verify container', async () => {
+      // We're already on Remote view by default
+      await verifyContentCardContainerVisible('content-card-container-remote');
+      
+      // Wait for initial content to load
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      console.log('Step 0: Starting test - tracking image-only cards');
+      
+      // STEP 1: Track image_only3
+      console.log('Step 1: Tracking action - image_only3');
+      await element(by.id('track-action-input')).replaceText('image_only3');
+      await element(by.id('track-action-button')).tap();
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // STEP 2: Track image_only4
+      console.log('Step 2: Tracking action - image_only4');
+      await element(by.id('track-action-input')).replaceText('image_only4');
+      await element(by.id('track-action-button')).tap();
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // STEP 3: Track image_only1
+      console.log('Step 3: Tracking action - image_only1');
+      await element(by.id('track-action-input')).replaceText('image_only1');
+      await element(by.id('track-action-button')).tap();
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
+      // Extra wait for content to fully load
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // STEP 4: Verify container is visible with content
+      console.log('Step 4: Verifying image-only cards loaded');
+      await verifyContentCardContainerVisible('content-card-container-remote');
+      console.log('✓ Verified: Container is visible');
+      
+      // Take screenshot showing image-only cards
+      await takeScreenshot('image-only-cards-loaded');
+      console.log('✓ Screenshot captured: image-only-cards-loaded');
+      
+      // STEP 5: Try to find and interact with dismiss buttons if available
+      console.log('Step 5: Checking for dismiss buttons');
+      const dismissButtons = element(by.text('×'));
+      
+      let dismissButtonsFound = 0;
+      try {
+        await waitFor(dismissButtons.atIndex(0))
+          .toExist()
+          .withTimeout(5000);
+        dismissButtonsFound++;
+        console.log('✓ Found at least 1 dismiss button');
+        
+        // Try to find more
+        try {
+          await detoxExpect(dismissButtons.atIndex(1)).toExist();
+          dismissButtonsFound++;
+          console.log('✓ Found 2nd dismiss button');
+          
+          await detoxExpect(dismissButtons.atIndex(2)).toExist();
+          dismissButtonsFound++;
+          console.log('✓ Found 3rd dismiss button');
+        } catch (e) {
+          console.log(`⚠ Found ${dismissButtonsFound} dismiss button(s) - some cards may not have dismiss or are off-screen`);
+        }
+        
+        // If we found dismiss buttons, try to dismiss one
+        if (dismissButtonsFound > 1) {
+          console.log('Step 6: Dismissing a card');
+          await dismissButtons.atIndex(0).tap();
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          await takeScreenshot('image-only-cards-after-dismiss');
+          console.log('✓ Successfully dismissed a card');
+        }
+      } catch (e) {
+        console.log('⚠ No dismiss buttons found - image-only cards may not have dismiss buttons configured');
+      }
+      
+      // Final verification
+      await verifyContentCardContainerVisible('content-card-container-remote');
+      
+      console.log('✅ Test completed: Image-only cards loaded successfully!');
+      console.log('   Summary:');
+      console.log('   - Step 1-3: Tracked image_only3, image_only4, image_only1');
+      console.log('   - Step 4: Verified container is visible');
+      console.log('   - Step 5: Screenshot captured');
+      console.log(`   - Dismiss buttons found: ${dismissButtonsFound}`);
+    });
+  });
+
+  // /**
+  //  * PATTERN 10: Complex Workflow Test
+  //  * Tests that combine multiple patterns into a realistic user flow
+  //  */
+  // describe('Complex Workflow Tests', () => {
+  //   it('should complete a full user workflow', async () => {
+  //     // Step 1: User changes theme preference
+  //     await switchTheme('dark');
+  //     await takeScreenshot('workflow-step1-theme-dark');
+      
+  //     // Step 2: User explores different view types
+  //     await selectViewType('inbox');
+  //     await verifyContentCardContainerVisible('content-card-container-inbox');
+  //     await takeScreenshot('workflow-step2-inbox-view');
+      
+  //     // Step 3: User switches to carousel
+  //     await selectViewType('carousel');
+  //     await verifyContentCardContainerVisible('content-card-container-carousel');
+  //     await takeScreenshot('workflow-step3-carousel-view');
+      
+  //     // Step 4: User goes to templates
+  //     await selectViewType('templates');
+  //     await waitFor(element(by.id('content-cards-template-list')))
+  //       .toBeVisible()
+  //       .withTimeout(5000);
+  //     await takeScreenshot('workflow-step4-templates-view');
+      
+  //     // Step 5: User tries different templates
+  //     await switchTemplate('largeimage');
+  //     await takeScreenshot('workflow-step5-large-image');
+      
+  //     // Step 6: User changes theme again
+  //     await switchTheme('light');
+  //     // await takeScreenshot('workflow-step6-theme-light');
+      
+  //     // Verify final state
+  //     await detoxExpect(element(by.id('theme-light'))).toBeVisible();
+  //     await waitFor(element(by.id('content-cards-template-list')))
+  //       .toBeVisible()
+  //       .withTimeout(5000);
+  //   });
+  // });
 });
 
