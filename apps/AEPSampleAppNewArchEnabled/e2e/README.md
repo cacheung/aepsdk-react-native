@@ -4,17 +4,75 @@ This directory contains end-to-end tests for the ContentCardsView features using
 
 ## Quick Start
 
+### Prerequisites (One-time Setup)
+
 ```bash
-# Install dependencies
-npm install
+# 1. Install Detox CLI globally
+npm install -g detox-cli
 
-# Generate native folders (Expo only, first time)
+# 2. Install project dependencies (from repo root)
+cd /path/to/aepsdk-react-native
+yarn install
+
+# 3. Navigate to the sample app
+cd apps/AEPSampleAppNewArchEnabled
+
+# 4. Generate native folders (Expo - first time only)
 npx expo prebuild
+```
 
-# iOS
+---
+
+### Running Tests on Android
+
+```bash
+# Step 1: Start the Android Emulator
+emulator -avd Pixel_9 &
+# Wait for emulator to fully boot (home screen visible)
+
+# Step 2: Navigate to the app directory
+cd apps/AEPSampleAppNewArchEnabled
+
+# Step 3: Build the app (only needed once or after code changes)
+npm run detox:build:android
+
+# Step 4: Run the tests
+detox test -c android.emu.debug e2e/contentCards.sample.test.ts
+```
+
+---
+
+### Running Tests on iOS
+
+```bash
+# Step 1: Install CocoaPods (first time only)
+cd apps/AEPSampleAppNewArchEnabled/ios
+pod install
+cd ..
+
+# Step 2: Build the app (only needed once or after code changes)
+npm run detox:build:ios
+
+# Step 3: Run the tests
+detox test -c ios.sim.debug e2e/contentCards.sample.test.ts
+```
+
+---
+
+### Quick Reference
+
+| Platform | Build Command | Test Command |
+|----------|---------------|--------------|
+| Android | `npm run detox:build:android` | `detox test -c android.emu.debug e2e/contentCards.sample.test.ts` |
+| iOS | `npm run detox:build:ios` | `detox test -c ios.sim.debug e2e/contentCards.sample.test.ts` |
+
+### Run All Tests (Build + Test)
+
+```bash
+# iOS - builds and runs all tests
 npm run e2e:ios
 
-# Android
+# Android - builds and runs all tests
 npm run e2e:android
 ```
 
@@ -173,7 +231,9 @@ npm run detox:test:android
 
 Configurations for iOS and Android:
 - **iOS Simulator**: iPhone 15 Pro
-- **Android Emulator**: Pixel_7_API_34
+- **Android Emulator**: Pixel_9
+
+> **Note**: To see available emulators, run `emulator -list-avds`
 
 ### Jest Config (`e2e/jest.config.js`)
 
@@ -259,6 +319,11 @@ Tests use real Adobe Experience Platform API with surfaces:
 - Use `npx detox` instead (e.g., `npx detox test -c ios.sim.debug`)
 - Or use npm scripts: `npm run detox:test:ios`
 - Or install globally: `npm install -g detox-cli`
+
+**"Could not find AVD" or emulator not found**
+- List available emulators: `emulator -list-avds`
+- Start the emulator manually: `emulator -avd <YOUR_AVD_NAME> &`
+- Update `.detoxrc.js` if your emulator name differs from `Pixel_9`
 
 **"No script URL provided. Make sure the packager is running..."**
 - Metro bundler is not running
